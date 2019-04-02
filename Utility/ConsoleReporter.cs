@@ -68,6 +68,16 @@ internal class ConsoleReporter : IProgressReporter
     Console.WriteLine($"RESULTS for candidate {candidate}\n");
     Console.WriteLine($"{assignments.Count()} allocation(s).");
 
+    if (_verbose)
+    {
+      Console.WriteLine();
+
+      foreach (var assignment in assignments)
+      {
+        Console.WriteLine(assignment);
+      }
+    }
+
     Console.WriteLine($"\nExecution time: {elapsedTime.TotalMilliseconds} ms");
     Console.WriteLine("===========================================\n");
   }
