@@ -9,7 +9,7 @@ namespace manpower
     // TODO : enter your name here - this helps us keep track of your results
     const string candidateName = "YOUR NAME GOES HERE";
 
-    private static ITaskPlanner CreatePlanner()
+    private static ITaskPlanner CreatePlanner(IRepository repository)
     {
       // TODO : develop a planner class that assigns tasks to people
 
@@ -25,7 +25,7 @@ namespace manpower
       // perform all tasks in as few days as possible while adhering to the
       // constraints identified in the requirements.
 
-      return new TaskPlanner();
+      return new TaskPlanner(repository);
     }
 
     private static IRepository CreateRepository(FileLocations fileLocations)
@@ -57,11 +57,11 @@ namespace manpower
 
       var verbose = bool.Parse(configuration["verbose"]);
 
-      // create an instance of the planner that contains the logic to create assignments
-      var taskPlanner = CreatePlanner();
-
       // create a repository used to load/save data
       var repository = CreateRepository(fileLocations);
+
+      // create an instance of the planner that contains the logic to create assignments
+      var taskPlanner = CreatePlanner(repository);
 
       // create a reporter appropriate for a console application
       var reporter = new ConsoleReporter(verbose);

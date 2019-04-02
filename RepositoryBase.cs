@@ -16,9 +16,9 @@ internal abstract class RepositoryBase : IRepository
 
   protected FileLocations FileLocations { get; }
 
-  public Dictionary<int, Skill> Skills { get; private set; }
-  public Dictionary<int, Person> People { get; private set; }
-  public Dictionary<int, Task> Tasks { get; private set; }
+  public IEnumerable<Skill> Skills { get; private set; } = Enumerable.Empty<Skill>();
+  public IEnumerable<Person> People { get; private set; } = Enumerable.Empty<Person>();
+  public IEnumerable<Task> Tasks { get; private set; } = Enumerable.Empty<Task>();
   public string TaskDatasetName { get => FileLocations.Tasks; }
 
   public abstract void SaveAssignments(IEnumerable<Assignment> assignments);
@@ -26,27 +26,31 @@ internal abstract class RepositoryBase : IRepository
   public void LoadData()
   {
     Skills = LoadSkills();
-    People = LoadPeople(Skills);
-    Tasks = LoadTasks(Skills);
+    var skillsIndex = Skills.ToDictionary(i => i.Id);
+
+    People = LoadPeople(skillsIndex);
+    Tasks = LoadTasks(skillsIndex);
   }
 
-  private Dictionary<int, Skill> LoadSkills()
+  private IEnumerable<Skill> LoadSkills()
   {
     using (var reader = new StreamReader(FileLocations.Skills))
     using (var csv = new CsvReader(reader))
     {
-      return csv.GetRecords<Skill>().ToDictionary(i => i.Id);
+      return csv.GetRecords<Skill>().ToList();
     }
   }
 
-  private Dictionary<int, Person> LoadPeople(Dictionary<int, Skill> skills)
+  private IEnumerable<Person> LoadPeople(Dictionary<int, Skill> skillsIndex)
   {
-    Dictionary<int, Person> people;
+    List<Person> people;
+    Dictionary<int, Person> peopleIndex;
 
     using (var reader = new StreamReader(FileLocations.People))
     using (var csv = new CsvReader(reader))
     {
-      people = csv.GetRecords<Person>().ToDictionary(i => i.Id);
+      people = csv.GetRecords<Person>().ToList();
+      peopleIndex = people.ToDictionary(i => i.Id);
     }
 
     using (var reader = new StreamReader(FileLocations.SkillMatrix))
@@ -62,10 +66,10 @@ internal abstract class RepositoryBase : IRepository
 
       foreach (var item in skillMatrix)
       {
-        if (!people.TryGetValue(item.PersonId, out var person))
+        if (!peopleIndex.TryGetValue(item.PersonId, out var person))
           throw new InvalidOperationException($"Invalid skills matrix - no person found with id {item.PersonId}");
 
-        if (!skills.TryGetValue(item.SkillId, out var skill))
+        if (!skillsIndex.TryGetValue(item.SkillId, out var skill))
           throw new InvalidOperationException($"Invalid skills matrix - no skill found with id {item.SkillId}");
 
         // add skill to person
@@ -76,7 +80,7 @@ internal abstract class RepositoryBase : IRepository
     return people;
   }
 
-  private Dictionary<int, Task> LoadTasks(Dictionary<int, Skill> skills)
+  private IEnumerable<Task> LoadTasks(Dictionary<int, Skill> skillsIndex)
   {
     using (var reader = new StreamReader(FileLocations.Tasks))
     using (var csv = new CsvReader(reader))
@@ -92,12 +96,12 @@ internal abstract class RepositoryBase : IRepository
         .GetRecords(rawTaskDefinition)
         .Select(item =>
         {
-          if (!skills.TryGetValue(item.SkillRequired, out var skill))
+          if (!skillsIndex.TryGetValue(item.SkillRequired, out var skill))
             throw new InvalidOperationException($"Invalid task list - no skill found with id {item.SkillRequired}");
 
           return new Task { Id = item.Id, SkillRequired = skill, IsPriority = item.IsPriority };
         })
-        .ToDictionary(i => i.Id);
+        .ToList();
     }
   }
 }

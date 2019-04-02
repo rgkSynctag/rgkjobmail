@@ -2,5 +2,5 @@ using System.Collections.Generic;
 
 public interface ITaskPlanner
 {
-  IEnumerable<Assignment> Execute(IRepository repository);
+  IEnumerable<Assignment> Execute();
 }

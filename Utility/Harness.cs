@@ -42,7 +42,7 @@ internal class Harness
 
       Stopwatch stopwatch = Stopwatch.StartNew();
 
-      _assignments = _taskPlanner.Execute(_repository);
+      _assignments = _taskPlanner.Execute();
 
       stopwatch.Stop();
 

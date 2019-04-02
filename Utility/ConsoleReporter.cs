@@ -36,19 +36,19 @@ internal class ConsoleReporter : IProgressReporter
     void ReportAllLoadedData()
     {
       Console.WriteLine("Skills:\n");
-      foreach (var skill in repository.Skills.Values)
+      foreach (var skill in repository.Skills)
       {
         Console.WriteLine(skill);
       }
 
       Console.WriteLine("\n\nPeople:\n");
-      foreach (var person in repository.People.Values)
+      foreach (var person in repository.People)
       {
         Console.WriteLine(person);
       }
 
       Console.WriteLine("\n\nTasks:\n");
-      foreach (var task in repository.Tasks.Values)
+      foreach (var task in repository.Tasks)
       {
         Console.WriteLine(task);
       }
@@ -56,9 +56,9 @@ internal class ConsoleReporter : IProgressReporter
 
     void ReportLoadedDataSummary()
     {
-      Console.WriteLine($"{repository.Skills.Count} Skills");
-      Console.WriteLine($"{repository.People.Count} People");
-      Console.WriteLine($"{repository.Tasks.Count} Tasks");
+      Console.WriteLine($"{repository.Skills.Count()} Skills");
+      Console.WriteLine($"{repository.People.Count()} People");
+      Console.WriteLine($"{repository.Tasks.Count()} Tasks");
     }
   }
 
