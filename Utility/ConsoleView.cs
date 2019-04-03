@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-internal class ConsoleReporter : IProgressReporter
+internal class ConsoleView : IUIView
 {
   private bool _verbose;
 
-  public ConsoleReporter(bool verbose)
+  public ConsoleView(bool verbose)
   {
     _verbose = verbose;
   }
@@ -22,7 +22,6 @@ internal class ConsoleReporter : IProgressReporter
   public void ReportLoadedData(IRepository repository)
   {
     Console.WriteLine("\nLoaded data");
-    Console.WriteLine($"Task dataset: {repository.TaskDatasetName}\n");
 
     if (_verbose)
     {
@@ -60,6 +59,33 @@ internal class ConsoleReporter : IProgressReporter
       Console.WriteLine($"{repository.People.Count()} People");
       Console.WriteLine($"{repository.Tasks.Count()} Tasks");
     }
+  }
+
+  public TaskDataset GetDatasetSelection(IEnumerable<TaskDataset> choices)
+  {
+    Console.WriteLine("\n\nSelect the set of Tasks to load:\n");
+
+    var choiceIndex = choices
+          .Select((choice, index) => new { choice, index })
+          .ToDictionary(i => i.index + 1, i => i.choice);
+
+    foreach (var choice in choiceIndex)
+    {
+      Console.WriteLine($"{choice.Key} - {choice.Value.DatasetName}");
+    }
+
+    Console.Write("\nEnter the number of the dataset to load: ");
+    var text = Console.ReadLine();
+
+    if (!int.TryParse(text, out var selection) ||
+        !choiceIndex.TryGetValue(selection, out var dataset))
+    {
+      Console.WriteLine("\nInvalid selection.\n");
+      return null;
+    }
+
+    Console.WriteLine($"\nLoading '{dataset.DatasetName}'.\n");
+    return dataset;
   }
 
   public void ReportResults(string candidate, TimeSpan elapsedTime, IEnumerable<Assignment> assignments)

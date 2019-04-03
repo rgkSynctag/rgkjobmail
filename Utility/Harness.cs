@@ -11,7 +11,8 @@ internal class Harness
   private readonly string _candidate;
   private readonly IRepository _repository;
   private readonly ITaskPlanner _taskPlanner;
-  private readonly IProgressReporter _progressReporter;
+  private readonly IEnumerable<TaskDataset> _datasetChoices;
+  private readonly IUIView _view;
 
   // results of executing the task planner
   private IEnumerable<Assignment> _assignments;
@@ -22,38 +23,40 @@ internal class Harness
     string candidate,
     IRepository repository,
     ITaskPlanner taskPlanner,
-    IProgressReporter progressReporter)
+    IEnumerable<TaskDataset> datasetChoices,
+    IUIView view)
   {
     _candidate = candidate;
     _repository = repository;
     _taskPlanner = taskPlanner;
-    _progressReporter = progressReporter;
+    _datasetChoices = datasetChoices;
+    _view = view;
   }
 
   public void Execute()
   {
     try
     {
-      _repository.LoadData();
+      _view.ReportStart(_candidate, DateTime.Now);
 
-      _progressReporter.ReportStart(_candidate, DateTime.Now);
+      var dataset = _view.GetDatasetSelection(_datasetChoices);
+      _repository.LoadData(dataset);
 
-      _progressReporter.ReportLoadedData(_repository);
+      _view.ReportLoadedData(_repository);
 
       Stopwatch stopwatch = Stopwatch.StartNew();
-
       _assignments = _taskPlanner.Execute();
-
       stopwatch.Stop();
-
       _elapsedTime = stopwatch.Elapsed;
 
-      _progressReporter.ReportResults(_candidate, _elapsedTime, _assignments);
+      _repository.SaveAssignments(_assignments, dataset.SavePath);
+
+      _view.ReportResults(_candidate, _elapsedTime, _assignments);
     }
     catch (Exception e)
     {
       _error = e;
-      _progressReporter.ReportError(e);
+      _view.ReportError(e);
 
       throw;
     }

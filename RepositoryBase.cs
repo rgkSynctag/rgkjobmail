@@ -19,17 +19,16 @@ internal abstract class RepositoryBase : IRepository
   public IEnumerable<Skill> Skills { get; private set; } = Enumerable.Empty<Skill>();
   public IEnumerable<Person> People { get; private set; } = Enumerable.Empty<Person>();
   public IEnumerable<Task> Tasks { get; private set; } = Enumerable.Empty<Task>();
-  public string TaskDatasetName { get => FileLocations.Tasks; }
 
-  public abstract void SaveAssignments(IEnumerable<Assignment> assignments);
+  public abstract void SaveAssignments(IEnumerable<Assignment> assignments, string saveToPath);
 
-  public void LoadData()
+  public void LoadData(TaskDataset dataset)
   {
     Skills = LoadSkills();
     var skillsIndex = Skills.ToDictionary(i => i.Id);
 
     People = LoadPeople(skillsIndex);
-    Tasks = LoadTasks(skillsIndex);
+    Tasks = LoadTasks(dataset.DatasetPath, skillsIndex);
   }
 
   private IEnumerable<Skill> LoadSkills()
@@ -80,9 +79,9 @@ internal abstract class RepositoryBase : IRepository
     return people;
   }
 
-  private IEnumerable<Task> LoadTasks(Dictionary<int, Skill> skillsIndex)
+  private IEnumerable<Task> LoadTasks(string datasetPath, Dictionary<int, Skill> skillsIndex)
   {
-    using (var reader = new StreamReader(FileLocations.Tasks))
+    using (var reader = new StreamReader(datasetPath))
     using (var csv = new CsvReader(reader))
     {
       var rawTaskDefinition = new

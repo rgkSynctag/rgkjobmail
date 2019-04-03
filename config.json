@@ -5,8 +5,10 @@
     "skills": "data/in/skills.csv",
     "people": "data/in/people.csv",
     "skillMatrix": "data/in/skillMatrix.csv",
-    "tasks": "data/in/tasks-small.csv",
+    "smallTaskList": "data/in/tasks-small.csv",
+    "largeTaskList": "data/in/tasks-large.csv",
 
-    "assignments": "data/out/assignments-small.csv"
+    "smallAssignmentList": "data/out/assignments-small.csv",
+    "largeAssignmentList": "data/out/assignments-large.csv"
   }
 }

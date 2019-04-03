@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 
@@ -39,6 +40,8 @@ namespace manpower
       //
       // You should derive a sub-class from RepositoryBase and implement the 
       // missing save logic.
+      //
+      // The target path to write the file to will be provided as an argument to the save method
 
       return new Repository(fileLocations);
     }
@@ -63,8 +66,10 @@ namespace manpower
       // create an instance of the planner that contains the logic to create assignments
       var taskPlanner = CreatePlanner(repository);
 
-      // create a reporter appropriate for a console application
-      var reporter = new ConsoleReporter(verbose);
+      // create a UI view appropriate for a console application
+      var view = new ConsoleView(verbose);
+
+      var datasetChoices = CreateDatasetChoices(fileLocations);
 
       // the harness invokes the planner and reports the results
       var harness =
@@ -72,9 +77,16 @@ namespace manpower
           candidateName,
           repository,
           taskPlanner,
-          reporter);
+          datasetChoices,
+          view);
 
       harness.Execute();
+    }
+
+    private static IEnumerable<TaskDataset> CreateDatasetChoices(FileLocations fileLocations)
+    {
+      yield return new TaskDataset { DatasetName = "Small dataset", DatasetPath = fileLocations.SmallTaskList, SavePath = fileLocations.SmallAssignmentList };
+      yield return new TaskDataset { DatasetName = "Large dataset", DatasetPath = fileLocations.LargeTaskList, SavePath = fileLocations.LargeAssignmentList };
     }
   }
 }
