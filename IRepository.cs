@@ -7,6 +7,7 @@ public interface IRepository
   IEnumerable<Person> People { get; }
   IEnumerable<Task> Tasks { get; }
 
-  void LoadData(TaskDataset dataset);
+  void LoadData(string taskListPath);
+
   void SaveAssignments(IEnumerable<Assignment> assignments, string saveToPath);
 }

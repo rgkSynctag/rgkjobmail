@@ -9,31 +9,32 @@ using Microsoft.Extensions.Configuration;
 /// <summary>An implementation of IRepository that works with .csv files</summary>
 internal abstract class RepositoryBase : IRepository
 {
-  protected RepositoryBase(FileLocations fileLocations)
+  protected RepositoryBase(FileLocations fileLocations, string configPath)
   {
     FileLocations = fileLocations ?? throw new ArgumentNullException(nameof(fileLocations));
+    ConfigPath = configPath ?? throw new ArgumentNullException(nameof(configPath));
   }
 
   protected FileLocations FileLocations { get; }
-
+  protected string ConfigPath { get; }
   public IEnumerable<Skill> Skills { get; private set; } = Enumerable.Empty<Skill>();
   public IEnumerable<Person> People { get; private set; } = Enumerable.Empty<Person>();
   public IEnumerable<Task> Tasks { get; private set; } = Enumerable.Empty<Task>();
 
   public abstract void SaveAssignments(IEnumerable<Assignment> assignments, string saveToPath);
 
-  public void LoadData(TaskDataset dataset)
+  public virtual void LoadData(string taskListPath)
   {
     Skills = LoadSkills();
     var skillsIndex = Skills.ToDictionary(i => i.Id);
 
     People = LoadPeople(skillsIndex);
-    Tasks = LoadTasks(dataset.DatasetPath, skillsIndex);
+    Tasks = LoadTasks(taskListPath, skillsIndex);
   }
 
   private IEnumerable<Skill> LoadSkills()
   {
-    using (var reader = new StreamReader(FileLocations.Skills))
+    using (var reader = new StreamReader(GetPath(FileLocations.Skills)))
     using (var csv = new CsvReader(reader))
     {
       return csv.GetRecords<Skill>().ToList();
@@ -45,14 +46,14 @@ internal abstract class RepositoryBase : IRepository
     List<Person> people;
     Dictionary<int, Person> peopleIndex;
 
-    using (var reader = new StreamReader(FileLocations.People))
+    using (var reader = new StreamReader(GetPath(FileLocations.People)))
     using (var csv = new CsvReader(reader))
     {
       people = csv.GetRecords<Person>().ToList();
       peopleIndex = people.ToDictionary(i => i.Id);
     }
 
-    using (var reader = new StreamReader(FileLocations.SkillMatrix))
+    using (var reader = new StreamReader(GetPath(FileLocations.SkillMatrix)))
     using (var csv = new CsvReader(reader))
     {
       var skillMatrixTypeDefinition = new
@@ -81,7 +82,7 @@ internal abstract class RepositoryBase : IRepository
 
   private IEnumerable<Task> LoadTasks(string datasetPath, Dictionary<int, Skill> skillsIndex)
   {
-    using (var reader = new StreamReader(datasetPath))
+    using (var reader = new StreamReader(GetPath(datasetPath)))
     using (var csv = new CsvReader(reader))
     {
       var rawTaskDefinition = new
@@ -103,4 +104,7 @@ internal abstract class RepositoryBase : IRepository
         .ToList();
     }
   }
+
+  protected string GetPath(string fileName)
+    => Path.Combine(ConfigPath, fileName);
 }

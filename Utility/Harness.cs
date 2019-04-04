@@ -40,7 +40,7 @@ internal class Harness
       _view.ReportStart(_candidate, DateTime.Now);
 
       var dataset = _view.GetDatasetSelection(_datasetChoices);
-      _repository.LoadData(dataset);
+      _repository.LoadData(dataset.DatasetPath);
 
       _view.ReportLoadedData(_repository);
 
@@ -61,6 +61,4 @@ internal class Harness
       throw;
     }
   }
-
-
 }

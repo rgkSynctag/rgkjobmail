@@ -29,7 +29,7 @@ namespace manpower
       return new TaskPlanner(repository);
     }
 
-    private static IRepository CreateRepository(FileLocations fileLocations)
+    private static IRepository CreateRepository(FileLocations fileLocations, string configPath)
     {
       // TODO : subclass RepositoryBase and extend it to save your results to disk
 
@@ -43,7 +43,7 @@ namespace manpower
       //
       // The target path to write the file to will be provided as an argument to the save method
 
-      return new Repository(fileLocations);
+      return new Repository(fileLocations, configPath);
     }
 
     static void Main(string[] args)
@@ -61,7 +61,7 @@ namespace manpower
       var verbose = bool.Parse(configuration["verbose"]);
 
       // create a repository used to load/save data
-      var repository = CreateRepository(fileLocations);
+      var repository = CreateRepository(fileLocations, Directory.GetCurrentDirectory());
 
       // create an instance of the planner that contains the logic to create assignments
       var taskPlanner = CreatePlanner(repository);
