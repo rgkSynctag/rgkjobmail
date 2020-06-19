@@ -8,7 +8,7 @@ namespace manpower
   class Program
   {
     // TODO : enter your name here - this helps us keep track of your results
-    const string candidateName = "YOUR NAME GOES HERE";
+    const string candidateName = "Ganesh Kumar R";
 
     private static ITaskPlanner CreatePlanner(IRepository repository)
     {
