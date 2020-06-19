@@ -7,7 +7,7 @@ using manpower;
 using Microsoft.Extensions.Configuration;
 
 /// <summary>An implementation of IRepository that works with .csv files</summary>
-internal abstract class RepositoryBase : IRepository
+public abstract class RepositoryBase : IRepository
 {
   protected RepositoryBase(FileLocations fileLocations, string configPath)
   {
